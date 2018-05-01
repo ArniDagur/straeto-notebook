@@ -1,0 +1,25 @@
+#!/bin/bash
+if [ $# -ne 2 ]
+  then
+    echo "Error in number of arguments"
+    exit 1
+fi
+
+echo 'dropping database if exists...'
+psql -U postgres -c 'REVOKE CONNECT ON DATABASE mapping FROM public;'&>/dev/null
+psql -U postgres -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'mapping';"&>/dev/null
+psql -U postgres -c 'DROP DATABASE IF EXISTS mapping'
+
+echo 'creating database...'
+createdb -U postgres mapping
+psql mapping -U postgres -c 'CREATE EXTENSION postgis'&>/dev/null
+
+echo 'insterting data into database from shapefile...'
+shp2pgsql -s 4326 $1 roads | psql mapping -U postgres &>/dev/null
+
+echo 'extracting road shapefiles from database...'
+OUTPUT_PATH="$(realpath $2)"
+(mkdir -p $OUTPUT_PATH && cd $_ && pgsql2shp -f extracted_roads -u postgres mapping "SELECT osm_id, geom FROM roads WHERE fclass IN \
+('motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'unclassified', 'residential', 'service', 'motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary_link') AND maxspeed > 0")
+(mkdir -p $OUTPUT_PATH && cd $_ && pgsql2shp -f no_extracted_roads -u postgres mapping "SELECT osm_id, geom FROM roads WHERE fclass IN \
+('motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'unclassified', 'residential', 'service', 'motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary_link') AND maxspeed = 0")

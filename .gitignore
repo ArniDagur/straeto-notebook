@@ -102,3 +102,14 @@ ENV/
 
 # .swp files
 *.swp
+
+# --- START repository specific --- #
+
+# data
+*.zip
+osm-data
+
+# other
+test.ipynb
+
+# --- END repository specific --- #

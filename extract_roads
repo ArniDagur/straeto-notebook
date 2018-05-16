@@ -4,22 +4,25 @@ if [ $# -ne 2 ]
     echo "Error in number of arguments"
     exit 1
 fi
+# vars
+DB_NAME="straeto"
+SHP_FILE=$1
+SHP_FILE_SPHEROID=4326
+OUTPUT_PATH=$2
 
-echo 'dropping database if exists...'
-psql -c 'REVOKE CONNECT ON DATABASE mapping FROM public;'&>/dev/null
-psql -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'mapping';"&>/dev/null
-psql -c 'DROP DATABASE IF EXISTS mapping'
+# dropping database if exists
+dropdb $DB_NAME
 
-echo 'creating database...'
-createdb mapping
-psql mapping -c 'CREATE EXTENSION postgis'&>/dev/null
+# creating database
+createdb $DB_NAME
+psql $DB_NAME -c 'CREATE EXTENSION postgis'
 
-echo 'insterting data into database from shapefile...'
-shp2pgsql -s 4326 $1 roads | psql mapping &>/dev/null
+# insterting data into database from shapefile
+shp2pgsql -s $SHP_FILE_SPHEROID $SHP_FILE roads | psql $DB_NAME
 
-echo 'extracting road shapefiles from database...'
-OUTPUT_PATH="$(realpath $2)"
-(mkdir -p $OUTPUT_PATH && cd $_ && pgsql2shp -f extracted_roads mapping "SELECT osm_id, geom FROM roads WHERE fclass IN \
+# extracting road shapefiles from database
+OUTPUT_PATH="$(realpath $OUTPUT_PATH)"
+(mkdir -p $OUTPUT_PATH && cd $_ && pgsql2shp -f extracted_roads $DB_NAME "SELECT osm_id, geom FROM roads WHERE fclass IN \
 ('motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'unclassified', 'residential', 'service', 'motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary_link') AND maxspeed > 0")
-(mkdir -p $OUTPUT_PATH && cd $_ && pgsql2shp -f no_extracted_roads mapping "SELECT osm_id, geom FROM roads WHERE fclass IN \
+(mkdir -p $OUTPUT_PATH && cd $_ && pgsql2shp -f no_extracted_roads $DB_NAME "SELECT osm_id, geom FROM roads WHERE fclass IN \
 ('motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'unclassified', 'residential', 'service', 'motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary_link') AND maxspeed = 0")

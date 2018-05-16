@@ -7,7 +7,7 @@ OSM_DATA_URL = 'http://download.geofabrik.de/europe/iceland-latest-free.shp.zip'
 OSM_DATA_ZIP_NAME = 'osm-data.zip'
 OSM_DATA_DIR_NAME = 'osm-data'
 
-PROJ_PATH = os.path.abspath('..')
+PROJ_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 def get_osm_data(verbose=False):
     if not os.path.exists(OSM_DATA_ZIP_NAME):

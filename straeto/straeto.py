@@ -41,13 +41,13 @@ def getConsecutiveBuses(ratio=1/2):
                     p_bdict.pop(key)
             return bdict, p_bdict
 
-def getMap(region='reykjavik', res='i', linewidth=0.35, dump=True,
+def getMap(region='reykjavik', res='i', linewidth=0.35, dump=False, load=False,
             color='lightgrey', lake_color='#a7cdf2'):
     region = region.lower(); res = res.lower()
     pickle_name = 'map-{}-{}-{}.pickle'.format(region, res, linewidth)
 
     #Load cached map if it exists
-    if os.path.exists(pickle_name):
+    if load and os.path.isfile(pickle_name):
         map = pickle.load(open(pickle_name, 'rb'))
         return map
     

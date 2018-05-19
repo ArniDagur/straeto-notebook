@@ -1,8 +1,10 @@
 from straeto import api
 import time
 import os
-from mpl_toolkits.basemap import Basemap
-import pickle
+
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+import cartopy.feature as cfeat
 
 PROJ_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -41,34 +43,27 @@ def getConsecutiveBuses(ratio=1/2):
                     p_bdict.pop(key)
             return bdict, p_bdict
 
-def getMap(region='reykjavik', res='i', linewidth=0.35, dump=False, load=False,
-            color='lightgrey', lake_color='#a7cdf2'):
-    region = region.lower(); res = res.lower()
-    pickle_name = 'map-{}-{}-{}.pickle'.format(region, res, linewidth)
-
-    #Load cached map if it exists
-    if load and os.path.isfile(pickle_name):
-        map = pickle.load(open(pickle_name, 'rb'))
-        return map
-    
+def get_map(region=None, projection=ccrs.Mercator(),
+            res='i', figsize=(8,10)):
+    # Map boundaries are specified
     if region == 'reykjavik':
-        urcrnrlat=64.174820; urcrnrlon=-21.662913
-        llcrnrlat=64.054223; llcrnrlon=-22.075822
+        ur_lat, ur_lon = 64.174820, -21.662913
+        ll_lat, ll_lon = 64.054223, -22.075822
+        extent = [ur_lon, ll_lon, ur_lat, ll_lat]
     elif region == 'iceland':
-        urcrnrlat=66.8; urcrnrlon=-12.9
-        llcrnrlat=63.2; llcrnrlon=-25
-    else:
+        ur_lat, ur_lon = 66.8, -12.9
+        ll_lat, ll_lon = 63.2, -25
+        extent = [ur_lon, ll_lon, ur_lat, ll_lat]
+    elif isinstance(region, list) and len(region) == 4:
+        # Region is given in the form [x0, x1, y0, y1]
+        extent = region
+    elif region != None:
         raise Exception('Error: Bad region')
-
-    map = Basemap(projection='merc', resolution=res,
-              urcrnrlat=urcrnrlat,urcrnrlon=urcrnrlon,
-              llcrnrlat=llcrnrlat, llcrnrlon=llcrnrlon)
-    map.drawcoastlines(linewidth=linewidth)
-    map.fillcontinents(color=color, lake_color=lake_color)
-    map.drawmapboundary(fill_color=lake_color)
-
-    if dump:
-        pickle.dump(map,
-                    open(pickle_name, 'wb'),
-                    -1) # Format?
-    return map
+    
+    fig, ax = plt.subplots(figsize=figsize,
+                           subplot_kw=dict(projection=projection))
+    ax.set_extent(extent) if region != None else False
+    
+    ax.add_feature(cfeat.GSHHSFeature(scale=res))
+    
+    return fig, ax

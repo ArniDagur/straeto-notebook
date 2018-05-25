@@ -2,10 +2,6 @@ from straeto import api
 import time
 import os
 
-import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
-import cartopy.feature as cfeat
-
 PROJ_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 def getConsecutiveBuses(ratio=1/2):
@@ -43,6 +39,10 @@ def getConsecutiveBuses(ratio=1/2):
                     p_bdict.pop(key)
             return bdict, p_bdict
 
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+import cartopy.feature as cfeat
+
 def get_map(region=None, projection=ccrs.Mercator(),
             res='i', figsize=(8,10)):
     # Map boundaries are specified
@@ -67,3 +67,12 @@ def get_map(region=None, projection=ccrs.Mercator(),
     ax.add_feature(cfeat.GSHHSFeature(scale=res))
     
     return fig, ax
+
+from cartopy.io.shapereader import Reader
+from cartopy.feature import ShapelyFeature
+
+def add_shapefile(ax, shapefile, projection=ccrs.PlateCarree(),
+                  facecolor='white', edgecolor='black'):
+    shape_feature = ShapelyFeature(Reader(shapefile).geometries(), projection)
+    ax.add_feature(shape_feature, facecolor=facecolor, edgecolor=edgecolor)
+    return ax

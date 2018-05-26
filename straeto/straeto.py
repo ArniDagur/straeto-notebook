@@ -44,21 +44,24 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeat
 
 def get_map(region=None, projection=ccrs.Mercator(),
-            res='i', figsize=(8,10)):
-    # Map boundaries are specified
+            res='i', figsize=(8,10), zoom=1):
+    # --  MAP BOUNDARIES  -- #
     if region == 'reykjavik':
         ur_lat, ur_lon = 64.174820, -21.662913
         ll_lat, ll_lon = 64.054223, -22.075822
-        extent = [ur_lon, ll_lon, ur_lat, ll_lat]
     elif region == 'iceland':
         ur_lat, ur_lon = 66.8, -12.9
         ll_lat, ll_lon = 63.2, -25
-        extent = [ur_lon, ll_lon, ur_lat, ll_lat]
     elif isinstance(region, list) and len(region) == 4:
         # Region is given in the form [x0, x1, y0, y1]
-        extent = region
+        ur_lat, ur_lon = region[2], region[0]
+        ll_lat, ll_lon = region[3], region[1]
     elif region != None:
         raise Exception('Error: Bad region')
+    x_offset = ((ur_lon-ll_lon)/2)*(1-(1/zoom))
+    y_offset = ((ur_lat-ll_lat)/2)*(1-(1/zoom))
+    extent = [ur_lon-x_offset, ll_lon+x_offset, ur_lat-y_offset, ll_lat+y_offset]
+    # --  MAP BOUNDARIES /-- #
     
     fig, ax = plt.subplots(figsize=figsize,
                            subplot_kw=dict(projection=projection))

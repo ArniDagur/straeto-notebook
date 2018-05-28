@@ -42,9 +42,11 @@ def getConsecutiveBuses(ratio=1/2):
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeat
+import numpy as np
+from matplotlib.colors import to_rgb
 
 def get_map(region=None, zoom=1, projection=ccrs.Mercator(),
-            res='i', land_color='#f0f0f0', figsize=(8,10)):
+            res='i', land_color='#f0f0f0', ocean_color='#7fcdff', figsize=(8,10)):
     # --  MAP BOUNDARIES  -- #
     assert 0 < zoom, 'Error: Zoom <= 0'
     if region == 'reykjavik':
@@ -70,6 +72,11 @@ def get_map(region=None, zoom=1, projection=ccrs.Mercator(),
                                # kwargs passed to add_subplot()
                                'projection': projection
                           })
+    ax.imshow(np.tile(np.array([[to_rgb(ocean_color)]]), [2, 2, 1]),
+            origin='upper',
+            transform=ccrs.PlateCarree(),
+            extent=[-180, 180, -180, 180]
+            )
     ax.set_extent(extent) if region != None else False
     
     ax.add_feature(cfeat.GSHHSFeature(scale=res, facecolor=land_color))

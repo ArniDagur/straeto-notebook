@@ -46,6 +46,7 @@ import cartopy.feature as cfeat
 def get_map(region=None, projection=ccrs.Mercator(),
             res='i', figsize=(8,10), zoom=1):
     # --  MAP BOUNDARIES  -- #
+    assert zoom != 0, 'Error: Zoom level cannot equal 0'
     if region == 'reykjavik':
         ur_lat, ur_lon = 64.174820, -21.662913
         ll_lat, ll_lon = 64.054223, -22.075822
@@ -58,13 +59,17 @@ def get_map(region=None, projection=ccrs.Mercator(),
         ll_lat, ll_lon = region[3], region[1]
     elif region != None:
         raise Exception('Error: Bad region')
-    x_offset = ((ur_lon-ll_lon)/2)*(1-(1/zoom))
-    y_offset = ((ur_lat-ll_lat)/2)*(1-(1/zoom))
-    extent = [ur_lon-x_offset, ll_lon+x_offset, ur_lat-y_offset, ll_lat+y_offset]
+    if region != None:
+        x_offset = ((ur_lon-ll_lon)/2)*(1-(1/zoom))
+        y_offset = ((ur_lat-ll_lat)/2)*(1-(1/zoom))
+        extent = [ur_lon-x_offset, ll_lon+x_offset, ur_lat-y_offset, ll_lat+y_offset]
     # --  MAP BOUNDARIES /-- #
     
     fig, ax = plt.subplots(figsize=figsize,
-                           subplot_kw=dict(projection=projection))
+                           subplot_kw={
+                               # kwargs passed to add_subplot()
+                               'projection': projection
+                          })
     ax.set_extent(extent) if region != None else False
     
     ax.add_feature(cfeat.GSHHSFeature(scale=res))

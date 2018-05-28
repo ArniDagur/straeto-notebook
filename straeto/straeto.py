@@ -43,8 +43,8 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeat
 
-def get_map(region=None, projection=ccrs.Mercator(),
-            res='i', figsize=(8,10), zoom=1):
+def get_map(region=None, zoom=1, projection=ccrs.Mercator(),
+            res='i', land_color='#f0f0f0', figsize=(8,10)):
     # --  MAP BOUNDARIES  -- #
     assert 0 < zoom, 'Error: Zoom <= 0'
     if region == 'reykjavik':
@@ -72,7 +72,7 @@ def get_map(region=None, projection=ccrs.Mercator(),
                           })
     ax.set_extent(extent) if region != None else False
     
-    ax.add_feature(cfeat.GSHHSFeature(scale=res))
+    ax.add_feature(cfeat.GSHHSFeature(scale=res, facecolor=land_color))
     
     return fig, ax
 

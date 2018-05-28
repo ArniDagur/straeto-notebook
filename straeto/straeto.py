@@ -80,7 +80,7 @@ from cartopy.io.shapereader import Reader
 from cartopy.feature import ShapelyFeature
 
 def add_shapefile(ax, shapefile, projection=ccrs.PlateCarree(),
-                  facecolor='white', edgecolor='black'):
+                  facecolor='none', edgecolor='black'):
     shape_feature = ShapelyFeature(Reader(shapefile).geometries(), projection)
     ax.add_feature(shape_feature, facecolor=facecolor, edgecolor=edgecolor)
     return ax

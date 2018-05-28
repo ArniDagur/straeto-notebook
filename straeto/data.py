@@ -22,7 +22,7 @@ def get_osm_data(verbose=False):
                 print('{} extracted to {}/'.format(f, OSM_DATA_DIR_NAME)) if verbose else False
                 extracted_files += 1
         assert extracted_files == 5, 'Error in number of extracted files: {} != 5'
-    print('Running extract_roads...') if verbose else False
+    print('Running extract_roads bash script...') if verbose else False
     r = run([
             PROJ_PATH+'/extract_roads',
             PROJ_PATH+'/osm-data/gis_osm_roads_free_1.shp',

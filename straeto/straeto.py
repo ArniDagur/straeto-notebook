@@ -46,7 +46,7 @@ import cartopy.feature as cfeat
 def get_map(region=None, projection=ccrs.Mercator(),
             res='i', figsize=(8,10), zoom=1):
     # --  MAP BOUNDARIES  -- #
-    assert zoom != 0, 'Error: Zoom level cannot equal 0'
+    assert 0 < zoom, 'Error: Zoom <= 0'
     if region == 'reykjavik':
         ur_lat, ur_lon = 64.174820, -21.662913
         ll_lat, ll_lon = 64.054223, -22.075822

@@ -19,7 +19,7 @@ def get_osm_data(verbose=False):
         for f in zf.namelist():
             if f.startswith('gis_osm_roads'):
                 zf.extract(f, OSM_DATA_DIR_NAME)
-                print('{} extracted to {}'.format(f, OSM_DATA_DIR_NAME)) if verbose else False
+                print('{} extracted to {}/'.format(f, OSM_DATA_DIR_NAME)) if verbose else False
                 extracted_files += 1
         assert extracted_files == 5, 'Error in number of extracted files: {} != 5'
     print('Running extract_roads...') if verbose else False

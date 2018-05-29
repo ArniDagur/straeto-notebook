@@ -45,10 +45,16 @@ import cartopy.feature as cfeat
 import numpy as np
 from matplotlib.colors import to_rgb
 
-def get_map(region=None, zoom=1, projection=ccrs.Mercator(),
-            res='i', land_color='#f0f0f0', ocean_color='#7fcdff', figsize=(8,10)):
-    # --  MAP BOUNDARIES  -- #
-    assert 0 < zoom, 'Error: Zoom <= 0'
+def extent_from_region(region):
+    if isinstance(region, list) and len(region) == 2:
+        zoom = region[1]
+        region = region[0]
+        assert 0 < zoom, 'Error: Zoom <= 0'
+    elif isinstance(region, str):
+        zoom = 1
+    else:
+        raise Exception('Error: Bad Region 1')
+
     if region == 'reykjavik':
         ur_lat, ur_lon = 64.174820, -21.662913
         ll_lat, ll_lon = 64.054223, -22.075822
@@ -59,24 +65,38 @@ def get_map(region=None, zoom=1, projection=ccrs.Mercator(),
         # Region is given in the form [x0, x1, y0, y1]
         ur_lat, ur_lon = region[2], region[0]
         ll_lat, ll_lon = region[3], region[1]
-    elif region != None:
-        raise Exception('Error: Bad region')
-    if region != None:
-        x_offset = ((ur_lon-ll_lon)/2)*(1-(1/zoom))
-        y_offset = ((ur_lat-ll_lat)/2)*(1-(1/zoom))
-        extent = [ur_lon-x_offset, ll_lon+x_offset, ur_lat-y_offset, ll_lat+y_offset]
-    # --  MAP BOUNDARIES /-- #
+    else:
+        raise Exception('Error: Bad region 2')
+
+    x_offset = ((ur_lon-ll_lon)/2)*(1-(1/zoom))
+    y_offset = ((ur_lat-ll_lat)/2)*(1-(1/zoom))
+    extent = [ur_lon-x_offset, ll_lon+x_offset, ur_lat-y_offset, ll_lat+y_offset]
+    return extent
     
-    fig, ax = plt.subplots(figsize=figsize,
+
+def get_map(region=None, zoom=1, projection=ccrs.Mercator(),
+            res='i', draw_coastlines=True, figsize=(8,10), shape=(1,1)):
+    extents = []
+    if isinstance(region, str):
+        region = [region]
+    for r in region:
+        extents.append(extent_from_region(r))
+
+    fig, axes = plt.subplots(shape[0], shape[1], figsize=figsize,
                            subplot_kw={
                                # kwargs passed to add_subplot()
                                'projection': projection
                           })
-    ax.set_extent(extent) if region != None else False
+    if not isinstance(axes, (list, np.ndarray)):
+        axes = [axes]
+    for ax, e in zip(axes, extents):
+        ax.set_extent(e)
+        ax.add_feature(cfeat.GSHHSFeature(scale=res)) if draw_coastlines else False
     
-    ax.add_feature(cfeat.GSHHSFeature(scale=res))
-    
-    return fig, ax
+    if len(axes) == 1:
+        return fig, axes[0]
+    else:
+        return fig, axes
 
 from cartopy.io.shapereader import Reader
 from cartopy.feature import ShapelyFeature

@@ -72,14 +72,9 @@ def get_map(region=None, zoom=1, projection=ccrs.Mercator(),
                                # kwargs passed to add_subplot()
                                'projection': projection
                           })
-    ax.imshow(np.tile(np.array([[to_rgb(ocean_color)]]), [2, 2, 1]),
-            origin='upper',
-            transform=ccrs.PlateCarree(),
-            extent=[-180, 180, -180, 180]
-            )
     ax.set_extent(extent) if region != None else False
     
-    ax.add_feature(cfeat.GSHHSFeature(scale=res, facecolor=land_color))
+    ax.add_feature(cfeat.GSHHSFeature(scale=res))
     
     return fig, ax
 

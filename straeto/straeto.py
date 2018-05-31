@@ -50,7 +50,7 @@ def extent_from_region(region):
         zoom = region[1]
         region = region[0]
         assert 0 < zoom, 'Error: Zoom <= 0'
-    elif isinstance(region, str):
+    elif isinstance(region, str) or (isinstance(region, list) and len(region) == 4):
         zoom = 1
     else:
         raise Exception('Error: Bad Region 1')

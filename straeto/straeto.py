@@ -106,3 +106,22 @@ def add_shapefile(ax, shapefile, projection=ccrs.PlateCarree(),
     shape_feature = ShapelyFeature(Reader(shapefile).geometries(), projection)
     ax.add_feature(shape_feature, facecolor=facecolor, edgecolor=edgecolor)
     return ax
+
+from scipy.stats import binned_statistic_2d
+
+def add_heatmap(ax, X, Y, Z, bins=50, statistic='mean', cmap='seismic', vmin=0.5, vmax=1.5,
+                projection=ccrs.PlateCarree()):
+    heatmap, x_edges, y_edges, _ = binned_statistic_2d(X, Y, Z, bins=bins, statistic=statistic)
+    extent = [x_edges[0], x_edges[-1], y_edges[0], y_edges[-1]]
+    im = ax.imshow(heatmap.T, cmap=cmap, vmin=vmin, vmax=vmax,
+                   extent=extent, origin='lower', transform=projection)
+    return im
+
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+def add_colorbar(fig, ax, im, label='', fontsize=20):
+    divider = make_axes_locatable(ax)
+    cax = divider.new_horizontal(size="5%", pad=0.1, axes_class=plt.Axes)
+    fig.add_axes(cax)
+    cbar = fig.colorbar(im, cax=cax)
+    cbar.set_label(label, size=fontsize)

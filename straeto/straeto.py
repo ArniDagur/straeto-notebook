@@ -125,3 +125,14 @@ def add_colorbar(fig, ax, im, label='', fontsize=20):
     fig.add_axes(cax)
     cbar = fig.colorbar(im, cax=cax)
     cbar.set_label(label, size=fontsize)
+
+def plot_homes_and_stops(ax):
+    ax.plot(-21.949770, 64.086517, marker='o', color='red', markersize=12, transform=ccrs.Geodetic(),
+             label='Heimili')
+    ax.plot(-21.928427, 64.092127, marker='o', color='red', markersize=12, transform=ccrs.Geodetic())
+
+    ax.plot(-21.950178, 64.085622, marker='o', color='orange', markersize=9, transform=ccrs.Geodetic(),
+             label='Strætóstopp')
+    ax.plot(-21.929836, 64.092050, marker='o', color='orange', markersize=9, transform=ccrs.Geodetic())
+    ax.legend()
+    return ax
